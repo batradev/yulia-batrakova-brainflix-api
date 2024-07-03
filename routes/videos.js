@@ -61,6 +61,16 @@ router.post('/:id/comments', (req, res) => {
     }
 });
 
+router.put('/:id/likes', (req, res) => {
+    const videos = readVideosFromFile();
+    const videoId = req.params.id;
+    const video = videos.find(video => video.id === videoId);
+    const currentLikes = parseInt(video.likes.replace(/,/g, ''), 10);
+    video.likes = (currentLikes + 1).toLocaleString();
+    writeVideosToFile(videos);
+    res.status(201).json(video.likes);
+})
+
 router.delete('/:id/comments/:commentId', (req, res) => {
     const videos = readVideosFromFile();
     const videoId = req.params.id;
