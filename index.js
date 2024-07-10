@@ -11,7 +11,7 @@ app.use(express.json());
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
 const videoRoutes = require('./routes/videos');
 
-app.use('/api/videos', videoRoutes);
+app.use('/videos', videoRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
