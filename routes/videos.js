@@ -1,12 +1,22 @@
 const express = require('express');
 const router = express.Router();
-
-let videos = require('../data/videos.json');
+const multer = require('multer');
+// let videos = require('../data/videos.json');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const path = require('path');
 const videosFilePath = path.join(__dirname, '../data/videos.json');
 const imagesDirectoryPath = path.join(__dirname, '../public/images');
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, 'public/images/');
+    },
+    filename: (req, file, cb) => {
+      cb(null, `${uuidv4()}-${file.originalname}`);
+    },
+  });
+const upload = multer({ storage: storage });
 
 const readVideosFromFile = () => {
     const fileData = fs.readFileSync(videosFilePath);
@@ -17,11 +27,11 @@ const writeVideosToFile = (data) => {
     fs.writeFileSync(videosFilePath, JSON.stringify(data, null, 2));
 };
 
-const getRandomImage = () => {
-    const images = fs.readdirSync(imagesDirectoryPath);
-    const randomIndex = Math.floor(Math.random() * images.length);
-    return images[randomIndex];
-};
+// const getRandomImage = () => {
+//     const images = fs.readdirSync(imagesDirectoryPath);
+//     const randomIndex = Math.floor(Math.random() * images.length);
+//     return images[randomIndex];
+// };
 
 router.get('/', (req, res) => {
     const videos = readVideosFromFile();
@@ -71,6 +81,16 @@ router.put('/:id/likes', (req, res) => {
     res.status(201).json(video.likes);
 })
 
+router.delete('/:id/likes', (req, res) => {
+    const videos = readVideosFromFile();
+    const videoId = req.params.id;
+    const video = videos.find(video => video.id === videoId);
+    const currentLikes = parseInt(video.likes.replace(/,/g, ''), 10);
+    video.likes = (currentLikes - 1).toLocaleString();
+    writeVideosToFile(videos);
+    res.status(201).json(video.likes);
+})
+
 router.delete('/:id/comments/:commentId', (req, res) => {
     const videos = readVideosFromFile();
     const videoId = req.params.id;
@@ -81,18 +101,19 @@ router.delete('/:id/comments/:commentId', (req, res) => {
 })
 
 
-router.post('/', (req, res) => {
+router.post('/', upload.single('image'), (req, res) => {
     const videos = readVideosFromFile();
     const newVideo = {
         id: uuidv4(),
         title: req.body.title,
         description: req.body.description,
         channel: "Default Channel",
-        image: `http://localhost:8080/images/${getRandomImage()}`,
+        // image: `http://localhost:8080/images/${getRandomImage()}`,
+        image: req.file ? `http://localhost:8080/images/${req.file.filename}` : 'http://localhost:8080/images/default-image.jpg',
         views: "0",
         likes: "0",
         duration: "0:00",
-        video: "http://localhost:3000/stream",
+        video: "https://unit-3-project-api-0a5620414506.herokuapp.com/stream",
         timestamp: Date.now(),
         comments: []
     };
@@ -102,11 +123,5 @@ router.post('/', (req, res) => {
     res.status(201).json(newVideo);
 });
 
-
-// router.post('/', (req, res) => {
-//     const newVideo = req.body;
-//     videos.push(newVideo);
-//     res.status(201).json(newVideo);
-// });
 
 module.exports = router
