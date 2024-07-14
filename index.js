@@ -9,8 +9,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
-const videoRoutes = require('./routes/videos');
 
+const videoRoutes = require('./routes/videos');
 app.use('/videos', videoRoutes);
 
 app.listen(PORT, () => {

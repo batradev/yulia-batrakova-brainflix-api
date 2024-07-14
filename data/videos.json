@@ -292,18 +292,5 @@
         "timestamp": 1701584262000
       }
     ]
-  },
-  {
-    "id": "0a0d0e66-9143-4d03-ac28-e648b9ac9442",
-    "title": "f",
-    "description": "f",
-    "channel": "Default Channel",
-    "image": "http://localhost:8080/images/default-image.jpg",
-    "views": "0",
-    "likes": "0",
-    "duration": "0:00",
-    "video": "https://unit-3-project-api-0a5620414506.herokuapp.com/stream",
-    "timestamp": 1720554778134,
-    "comments": []
   }
 ]
